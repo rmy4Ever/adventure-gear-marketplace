@@ -4,7 +4,7 @@ import { View, Text } from 'react-native';
 const Dashboard = () => {
   return (
     <View>
-      <Text>Dashboard Screen</Text>
+      <Text>Gear Up and Explore </Text>
     </View>
   );
 };

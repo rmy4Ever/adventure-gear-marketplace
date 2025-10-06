@@ -3,6 +3,7 @@
     "name": "adventure-gear-marketplace",
     "slug": "adventure-gear-marketplace",
     "version": "1.0.0",
+    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,14 +14,22 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyD-JBm8qLKe0W0xTpna7SlAm21CKVEBjXE"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD-JBm8qLKe0W0xTpna7SlAm21CKVEBjXEE"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

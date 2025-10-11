@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-// Dashboard.js — scroll-away top bar (natural behavior)
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -15,6 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { doc, onSnapshot, collection } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import { signOut } from "firebase/auth";
+import axios from "axios";
 
 export default function Dashboard({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -23,6 +22,7 @@ export default function Dashboard({ navigation }) {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [error, setError] = useState(null);
   const [cartItems, setCartItems] = useState([]);
+  const [weather, setWeather] = useState(null);
 
   // handles logout
   const handleLogout = async () => {
@@ -92,6 +92,22 @@ export default function Dashboard({ navigation }) {
     fetchProducts();
   }, []);
 
+  // fetch weather
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const { extra } = require("../../app.json"); // Access OpenWeather API key
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=-17.8&lon=178.0&units=metric&appid=${extra.openWeatherApiKey}`
+        );
+        setWeather(response.data);
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    };
+    fetchWeather();
+  }, []);
+
   // cart logic
   const addToCart = (product) => {
     setCartItems((prev) => {
@@ -139,7 +155,6 @@ export default function Dashboard({ navigation }) {
       <FlatList
         ListHeaderComponent={
           <>
-            {/* 🟩 Scroll-away top bar */}
             <View style={styles.topBar}>
               <Text style={styles.pageTitle}>Dashboard</Text>
               <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
@@ -155,9 +170,13 @@ export default function Dashboard({ navigation }) {
               </Text>
             )}
 
-            {/* Map section */}
             <View style={styles.mapCard}>
               <Text style={styles.mapTitle}>Adventure Stores in Fiji</Text>
+              {weather && (
+                <Text style={styles.weatherText}>
+                  Weather: {weather.main.temp}°C, {weather.weather[0].description}
+                </Text>
+              )}
               <MapView
                 style={styles.map}
                 initialRegion={{
@@ -166,7 +185,6 @@ export default function Dashboard({ navigation }) {
                   latitudeDelta: 2.5,
                   longitudeDelta: 3.5,
                 }}
-                tintColor="#2F6B3C"
                 customMapStyle={[
                   { elementType: "geometry", stylers: [{ color: "#E8EDE6" }] },
                   { elementType: "labels.text.fill", stylers: [{ color: "#2F6B3C" }] },
@@ -225,7 +243,6 @@ export default function Dashboard({ navigation }) {
         contentContainerStyle={{ paddingBottom: 100 }}
       />
 
-      {/* 🟨 Bottom checkout bar */}
       <View style={styles.bottomBar}>
         <TouchableOpacity
           style={styles.cartArea}
@@ -254,88 +271,12 @@ export default function Dashboard({ navigation }) {
         </TouchableOpacity>
       </View>
     </View>
-=======
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import axios from 'axios';
-
-const Dashboard = ({ navigation }) => {
-  const [weather, setWeather] = useState(null);
-  const [products, setProducts] = useState([
-    { id: '1', name: 'Tent XL', price: 150, image: 'https://via.placeholder.com/100' },
-    { id: '2', name: 'Hiking Boots', price: 80, image: 'https://via.placeholder.com/100' },
-    { id: '3', name: 'Sleeping Bag', price: 60, image: 'https://via.placeholder.com/100' },
-  ]);
-  const lat = -17.7134; // Suva, Fiji (placeholder, update to Yosemite later)
-  const lon = 178.0650;
-  const apiKey = '3b2f8c2519e62a0fa3b82bd268e9e6c2'; // Replace with your key
-
-  useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
-        );
-        setWeather(response.data);
-      } catch (error) {
-        console.error('Error fetching weather:', error);
-      }
-    };
-    fetchWeather();
-  }, [lat, lon, apiKey]);
-
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('Product', { product: item })}>
-      <View style={styles.productItem}>
-        <Text>{item.name} - ${item.price}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Adventure Gear Marketplace</Text>
-      {weather && (
-        <View style={styles.weather}>
-          <Text style={styles.weatherText}>
-            Weather in Suva: {weather.main.temp}°C, {weather.weather[0].description}
-          </Text>
-        </View>
-      )}
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={item => item.id}
-        style={styles.productList}
-      />
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: lat,
-          longitude: lon,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-      >
-        <Marker
-          coordinate={{ latitude: lat, longitude: lon }}
-          title="Gear Store"
-          description="Local adventure gear hub"
-        />
-      </MapView>
-    </SafeAreaView>
->>>>>>> Stashed changes
   );
 }
 
 const styles = StyleSheet.create({
-<<<<<<< Updated upstream
   container: { flex: 1, backgroundColor: "#F4F6F4" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-
-  // ✅ Top bar that scrolls away naturally
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -351,76 +292,22 @@ const styles = StyleSheet.create({
     borderBottomColor: "#DADADA",
     marginBottom: 10,
   },
-  pageTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#2F6B3C",
-  },
-  logoutButton: {
-    backgroundColor: "#8B5E3C",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  logoutText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 14,
-  },
-  welcomeText: {
-    fontSize: 18,
-    textAlign: "center",
-    color: "#4F5D4E",
-    marginVertical: 10,
-    fontWeight: "500",
-  },
-  mapCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    marginHorizontal: 16,
-    marginBottom: 15,
-    elevation: 3,
-    overflow: "hidden",
-  },
-  mapTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#2F6B3C",
-    textAlign: "center",
-    marginVertical: 8,
-  },
+  pageTitle: { fontSize: 18, fontWeight: "700", color: "#2F6B3C" },
+  logoutButton: { backgroundColor: "#8B5E3C", paddingVertical: 8, paddingHorizontal: 14, borderRadius: 8 },
+  logoutText: { color: "#fff", fontWeight: "600", fontSize: 14 },
+  welcomeText: { fontSize: 18, textAlign: "center", color: "#4F5D4E", marginVertical: 10, fontWeight: "500" },
+  mapCard: { backgroundColor: "#FFFFFF", borderRadius: 14, marginHorizontal: 16, marginBottom: 15, elevation: 3, overflow: "hidden" },
+  mapTitle: { fontSize: 16, fontWeight: "bold", color: "#2F6B3C", textAlign: "center", marginVertical: 8 },
+  weatherText: { fontSize: 14, textAlign: "center", color: "#2F6B3C", marginBottom: 8 },
   map: { width: "100%", height: 180 },
-  mapButton: {
-    backgroundColor: "#E8B64D",
-    paddingVertical: 10,
-    alignItems: "center",
-  },
+  mapButton: { backgroundColor: "#E8B64D", paddingVertical: 10, alignItems: "center" },
   mapButtonText: { color: "#1B1B1B", fontWeight: "bold" },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#2F6B3C",
-    textAlign: "center",
-    marginVertical: 15,
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 18,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    elevation: 4,
-  },
+  header: { fontSize: 24, fontWeight: "bold", color: "#2F6B3C", textAlign: "center", marginVertical: 15 },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 12, padding: 18, marginHorizontal: 16, marginBottom: 16, elevation: 4 },
   image: { width: "100%", height: 160, borderRadius: 8, marginBottom: 10 },
   name: { fontSize: 18, fontWeight: "bold", color: "#1B1B1B" },
   price: { fontSize: 16, color: "#3A915F", marginVertical: 6 },
-  button: {
-    backgroundColor: "#2F6B3C",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 6,
-  },
+  button: { backgroundColor: "#2F6B3C", paddingVertical: 10, borderRadius: 8, alignItems: "center", marginTop: 6 },
   buttonText: { color: "#FFFFFF", fontWeight: "600" },
   bottomBar: {
     position: "absolute",
@@ -438,23 +325,8 @@ const styles = StyleSheet.create({
   },
   cartText: { fontSize: 16, fontWeight: "600", color: "#4F5D4E" },
   viewCart: { fontSize: 13, color: "#6B7280" },
-  checkoutButton: {
-    backgroundColor: "#E8B64D",
-    paddingVertical: 10,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-  },
+  checkoutButton: { backgroundColor: "#E8B64D", paddingVertical: 10, paddingHorizontal: 25, borderRadius: 8 },
   checkoutText: { color: "#1B1B1B", fontWeight: "bold", fontSize: 15 },
-});
-=======
-  container: { flex: 1 },
-  header: { fontSize: 20, textAlign: 'center', margin: 10 },
-  weather: { padding: 10, backgroundColor: '#f0f0f0' },
-  weatherText: { fontSize: 16, textAlign: 'center' },
-  productList: { flex: 1, maxHeight: 150 },
-  productItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
-  map: { flex: 2 },
 });
 
 export default Dashboard;
->>>>>>> Stashed changes

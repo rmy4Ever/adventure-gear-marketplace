@@ -1,28 +1,38 @@
 {
   "expo": {
-    "name": "adventure-gear-marketplace",
+    "name": "Adventure Gear Marketplace",
     "slug": "adventure-gear-marketplace",
     "version": "1.0.0",
-    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "scheme": "adventuregear",
+    "plugins": [
+      [
+        "expo-payments-stripe",
+        {
+          "merchantId": "merchant.com.bangt.adventuregear", 
+          "publishableKey": "pk_test_51SGcH8DrPn3nNBksQ7EZ9pCMllbqdo5KqFxYclwhzbFG8gxYOubY4keFeRmxksbz2OzJy8wb7Y43ALAq7Oi2xFuS00aGA45OsJ",
+          "enableGooglePay": false 
+        }
+      ]
+    ],
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "config": {
-        "googleMapsApiKey": "AIzaSyD-JBm8qLKe0W0xTpna7SlAm21CKVEBjXE"
-      }
+      "bundleIdentifier": "com.bangt.adventuregear" 
     },
     "android": {
+      "package": "com.bangt.adventuregear", 
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+<<<<<<< Updated upstream
       },
       "edgeToEdgeEnabled": true,
       "config": {
@@ -40,5 +50,9 @@
     "plugins": [
       "expo-web-browser"
     ]
+=======
+      }
+    }
+>>>>>>> Stashed changes
   }
 }

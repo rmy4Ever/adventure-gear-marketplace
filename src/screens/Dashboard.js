@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // Dashboard.js — scroll-away top bar (natural behavior)
 import React, { useEffect, useState } from "react";
 import {
@@ -253,10 +254,84 @@ export default function Dashboard({ navigation }) {
         </TouchableOpacity>
       </View>
     </View>
+=======
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
+
+const Dashboard = ({ navigation }) => {
+  const [weather, setWeather] = useState(null);
+  const [products, setProducts] = useState([
+    { id: '1', name: 'Tent XL', price: 150, image: 'https://via.placeholder.com/100' },
+    { id: '2', name: 'Hiking Boots', price: 80, image: 'https://via.placeholder.com/100' },
+    { id: '3', name: 'Sleeping Bag', price: 60, image: 'https://via.placeholder.com/100' },
+  ]);
+  const lat = -17.7134; // Suva, Fiji (placeholder, update to Yosemite later)
+  const lon = 178.0650;
+  const apiKey = '3b2f8c2519e62a0fa3b82bd268e9e6c2'; // Replace with your key
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+        );
+        setWeather(response.data);
+      } catch (error) {
+        console.error('Error fetching weather:', error);
+      }
+    };
+    fetchWeather();
+  }, [lat, lon, apiKey]);
+
+  const renderProduct = ({ item }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('Product', { product: item })}>
+      <View style={styles.productItem}>
+        <Text>{item.name} - ${item.price}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.header}>Adventure Gear Marketplace</Text>
+      {weather && (
+        <View style={styles.weather}>
+          <Text style={styles.weatherText}>
+            Weather in Suva: {weather.main.temp}°C, {weather.weather[0].description}
+          </Text>
+        </View>
+      )}
+      <FlatList
+        data={products}
+        renderItem={renderProduct}
+        keyExtractor={item => item.id}
+        style={styles.productList}
+      />
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: lat,
+          longitude: lon,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
+      >
+        <Marker
+          coordinate={{ latitude: lat, longitude: lon }}
+          title="Gear Store"
+          description="Local adventure gear hub"
+        />
+      </MapView>
+    </SafeAreaView>
+>>>>>>> Stashed changes
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< Updated upstream
   container: { flex: 1, backgroundColor: "#F4F6F4" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
 
@@ -371,3 +446,15 @@ const styles = StyleSheet.create({
   },
   checkoutText: { color: "#1B1B1B", fontWeight: "bold", fontSize: 15 },
 });
+=======
+  container: { flex: 1 },
+  header: { fontSize: 20, textAlign: 'center', margin: 10 },
+  weather: { padding: 10, backgroundColor: '#f0f0f0' },
+  weatherText: { fontSize: 16, textAlign: 'center' },
+  productList: { flex: 1, maxHeight: 150 },
+  productItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+  map: { flex: 2 },
+});
+
+export default Dashboard;
+>>>>>>> Stashed changes

@@ -66,6 +66,7 @@ const AuthScreen = ({ navigation }) => {
       } else {
         // 🔹 user login
         userCredential = await signInWithEmailAndPassword(auth, email, password);
+<<<<<<< Updated upstream
         const userRef = doc(db, "users", userCredential.user.uid);
         const userSnap = await getDoc(userRef);
 
@@ -95,10 +96,47 @@ const AuthScreen = ({ navigation }) => {
       }
     } catch (error) {
       Alert.alert("Error", error.message);
+=======
+        // Check for admin after login
+        if (email === 'admin@example.com' && password === 'adminpassword') { // Add password check
+          navigation.navigate('Admin');
+        } else {
+          navigation.navigate('Dashboard');
+        }
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const handlePhoneAuth = async () => {
+    try {
+      const phoneProvider = new PhoneAuthProvider(auth);
+      const id = await phoneProvider.verifyPhoneNumber(phone, recaptchaVerifier.current);
+      setVerificationId(id);
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
+
+  const confirmCode = async () => {
+    try {
+      const credential = PhoneAuthProvider.credential(verificationId, code);
+      await signInWithCredential(auth, credential);
+      // Check for admin after phone auth
+      if (email === 'admin@example.com' && password === 'adminpassword') {
+        navigation.navigate('Admin');
+      } else {
+        navigation.navigate('Dashboard');
+      }
+    } catch (error) {
+      Alert.alert('Error', error.message);
+>>>>>>> Stashed changes
     }
   };
 
   return (
+<<<<<<< Updated upstream
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.keyboardView}
@@ -171,6 +209,47 @@ const AuthScreen = ({ navigation }) => {
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
+=======
+    <View style={{ padding: 20, flex: 1, justifyContent: 'center' }}>
+      <TextInput
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 10 }}
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={{ borderWidth: 1, marginBottom: 10, padding: 10 }}
+      />
+      <Button title={isSignup ? 'Signup' : 'Login'} onPress={handleAuth} />
+      <Button
+        title={`Switch to ${isSignup ? 'Login' : 'Signup'}`}
+        onPress={() => setIsSignup(!isSignup)}
+        color="#28a745"
+      />
+      <TextInput
+        placeholder="Phone (+1234567890)"
+        value={phone}
+        onChangeText={setPhone}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 10 }}
+        keyboardType="phone-pad"
+      />
+      <Button title="Send Code" onPress={handlePhoneAuth} color="#007bff" />
+      <TextInput
+        placeholder="Enter Code"
+        value={code}
+        onChangeText={setCode}
+        style={{ borderWidth: 1, marginBottom: 10, padding: 10 }}
+        keyboardType="numeric"
+      />
+      <Button title="Confirm Code" onPress={confirmCode} color="#dc3545" />
+      <FirebaseRecaptchaVerifierModal ref={recaptchaVerifier} firebaseAuth={auth} />
+    </View>
+>>>>>>> Stashed changes
   );
 };
 

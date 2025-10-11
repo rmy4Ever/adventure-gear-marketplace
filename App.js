@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -13,11 +14,51 @@ import MapScreen from "./src/screens/MapScreen"; // map screen – store locatio
 import ProductDetails from "./src/screens/ProductDetails"; // product details – info about selected gear
 import CartScreen from "./src/screens/CartScreen"; // cart screen – review and edit items before checkout
 import CheckoutScreen from "./src/screens/CheckoutScreen"; // checkout screen – handles payment and receipts
+=======
+import React, { useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons'; // For tab icons
+import { SafeAreaProvider } from 'react-native-safe-area-context'; // Add this
+import AuthScreen from './src/screens/AuthScreen';
+import MapScreen from './src/screens/MapScreen';
+import StoreScreen from './src/screens/StoreScreen';
+import ProductScreen from './src/screens/ProductScreen';
+import CartScreen from './src/screens/CartScreen';
+import PDFScreen from './src/screens/PDFScreen';
+import ShareTrailScreen from './src/screens/ShareTrailScreen';
+import AdminScreen from './src/screens/AdminScreen'; // Add this
+>>>>>>> Stashed changes
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Tab Navigator
+const DashboardTabs = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Map') iconName = focused ? 'map' : 'map-outline';
+          else if (route.name === 'Store') iconName = focused ? 'storefront' : 'storefront-outline';
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#28a745',
+        tabBarInactiveTintColor: 'gray',
+      })}
+    >
+      <Tab.Screen name="Map" component={MapScreen} />
+      <Tab.Screen name="Store" component={StoreScreen} />
+    </Tab.Navigator>
+  );
+};
 
 export default function App() {
+  const [cart, setCart] = useState([]);
   return (
+<<<<<<< Updated upstream
     <StripeProvider
       publishableKey="pk_test_51SGYc1KaGuQ3wTb2qC9x0XhlySw78TCDBOmf0oU4ZaIa61cEDSvdPpHGsWesqoNzEn8bxlAatgzEorE5L0gmnuA500JQYGtP2S" //Public API key for Stripe
       merchantIdentifier="merchant.com.adventuregear" // used for Apple Pay setup if needed
@@ -46,5 +87,26 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </StripeProvider>
+=======
+    <SafeAreaProvider> {/* Wrap the app */}
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Auth">
+          <Stack.Screen name="Auth" component={AuthScreen} />
+          <Stack.Screen
+            name="Dashboard"
+            component={DashboardTabs}
+            options={{ headerShown: false }} // Hide header for tabs
+          />
+          <Stack.Screen name="Product" component={ProductScreen} />
+          <Stack.Screen name="Cart">
+            {props => <CartScreen {...props} cart={cart} setCart={setCart} />}
+          </Stack.Screen>
+          <Stack.Screen name="PDF" component={PDFScreen} />
+          <Stack.Screen name="ShareTrail" component={ShareTrailScreen} />
+          <Stack.Screen name="Admin" component={AdminScreen} /> {/* Add here */}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
+>>>>>>> Stashed changes
   );
 }

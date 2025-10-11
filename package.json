@@ -10,11 +10,10 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
-    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-async-storage/async-storage": "1.24.0",
     "@react-navigation/bottom-tabs": "^7.4.8",
     "@react-navigation/native": "^7.1.18",
     "@react-navigation/stack": "^7.4.9",
-<<<<<<< Updated upstream
     "@stripe/stripe-react-native": "^0.50.3",
     "expo": "~54.0.12",
     "expo-constants": "~18.0.9",
@@ -22,19 +21,12 @@
     "expo-file-viewer": "^0.1.0",
     "expo-firebase-core": "^6.0.0",
     "expo-firebase-recaptcha": "^2.3.1",
-=======
-    "axios": "^1.12.2",
-    "expo": "~54.0.12",
-    "expo-constants": "~18.0.9",
-    "expo-file-system": "~19.0.17",
-    "expo-firebase-core": "^6.0.0",
-    "expo-firebase-recaptcha": "^2.3.1",
     "expo-payments-stripe": "^10.0.1",
->>>>>>> Stashed changes
     "expo-print": "~15.0.7",
     "expo-sharing": "~14.0.7",
     "expo-status-bar": "~3.0.8",
     "expo-web-browser": "~15.0.8",
+    "axios": "^1.12.2",
     "firebase": "^12.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",

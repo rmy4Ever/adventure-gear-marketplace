@@ -1,188 +1,100 @@
-import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { PhoneAuthProvider, signInWithCredential } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../firebase";
-import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-import { firebaseConfig } from "../../firebaseConfig";
+// PhoneVerification.js — handles OTP / MFA verification (mocked for Expo test mode)
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
-const PhoneVerification = ({ navigation, route }) => {
-  const [phone, setPhone] = useState("");
-  const [code, setCode] = useState("");
+export default function PhoneVerification({ route, navigation }) {
+  // ✅ Expect valid params from AuthScreen
+  const { userId, phoneNumber } = route.params;
   const [verificationId, setVerificationId] = useState(null);
-  const recaptchaVerifier = useRef(null);
+  const [code, setCode] = useState("");
 
-  // ✅ userId passed from Auth or Dashboard
-  const userId = route?.params?.userId;
-
-  // Send verification code
+  // 🟡 Simulate sending OTP (test mode only)
   const sendVerification = async () => {
     try {
-      if (!phone.startsWith("+")) {
-        Alert.alert("Error", "Please include your country code (e.g., +679...).");
-        return;
-      }
-
-      const phoneProvider = new PhoneAuthProvider(auth);
-      const id = await phoneProvider.verifyPhoneNumber(phone, recaptchaVerifier.current);
-      setVerificationId(id);
-      Alert.alert("Success", "Verification code sent to your phone!");
+      console.log("Simulating OTP send for test mode");
+      setVerificationId("test-id");
+      Alert.alert("Code Sent", `An OTP was sent to ${phoneNumber}`);
     } catch (error) {
+      console.log("Verification error:", error);
       Alert.alert("Error", error.message);
     }
   };
 
-  // Confirm verification code
+  // 🟢 Simulate verifying OTP code
   const confirmCode = async () => {
-    try {
-      const credential = PhoneAuthProvider.credential(verificationId, code);
-      await signInWithCredential(auth, credential);
+    if (!code.trim()) {
+      Alert.alert("Missing Code", "Please enter the 6-digit code.");
+      return;
+    }
 
-      await setDoc(
-        doc(db, "users", userId),
-        {
-          phone,
-          verified: true,
-          verifiedAt: new Date(),
-        },
-        { merge: true }
-      );
-
-      Alert.alert("Verified", "Your phone number has been verified!");
-      navigation.navigate("Dashboard");
-    } catch (error) {
-      Alert.alert("Error", error.message);
+    if (code === "123456") {
+      try {
+        await updateDoc(doc(db, "users", userId), { verified: true });
+        Alert.alert("Success", "Phone number verified!");
+        navigation.reset({ index: 0, routes: [{ name: "Dashboard" }] });
+      } catch (error) {
+        console.log("Firestore update error:", error);
+        Alert.alert("Error", "Could not update verification status.");
+      }
+    } else {
+      Alert.alert("Invalid Code", "Please try again using 123456 (test mode).");
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <View style={styles.card}>
-        <Text style={styles.title}>Verify Your Phone Number</Text>
-        <Text style={styles.subtitle}>
-          Adding your phone number helps keep your account safe and secure.
-        </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Verify Your Phone</Text>
+      <Text style={styles.subtitle}>We’ll send a code to {phoneNumber}</Text>
 
-        {/* Input phone number */}
-        <TextInput
-          placeholder="Phone number (e.g. +6791234567)"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-          style={styles.input}
-        />
-
-        <TouchableOpacity style={styles.primaryBtn} onPress={sendVerification}>
-          <Text style={styles.btnText}>Send Verification Code</Text>
+      {!verificationId ? (
+        <TouchableOpacity style={styles.btn} onPress={sendVerification}>
+          <Text style={styles.btnText}>Send Code</Text>
         </TouchableOpacity>
+      ) : (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter 6-digit code"
+            keyboardType="numeric"
+            value={code}
+            onChangeText={setCode}
+          />
+          <TouchableOpacity style={styles.btn} onPress={confirmCode}>
+            <Text style={styles.btnText}>Verify</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={sendVerification}>
+            <Text style={styles.resend}>Resend Code</Text>
+          </TouchableOpacity>
+        </>
+      )}
 
-        {/* Input OTP code */}
-        {verificationId && (
-          <>
-            <TextInput
-              placeholder="Enter the 6-digit code"
-              value={code}
-              onChangeText={setCode}
-              keyboardType="numeric"
-              style={styles.input}
-            />
-            <TouchableOpacity style={styles.primaryBtn} onPress={confirmCode}>
-              <Text style={styles.btnText}>Confirm Code</Text>
-            </TouchableOpacity>
-          </>
-        )}
-
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Dashboard")}
-          style={styles.skipBtn}
-        >
-          <Text style={styles.skipText}>Skip for now</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Required reCAPTCHA verifier */}
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig}
-      />
-    </KeyboardAvoidingView>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.reset({ index: 0, routes: [{ name: "Dashboard" }] })
+        }
+      >
+        <Text style={styles.skip}>Skip for now</Text>
+      </TouchableOpacity>
+    </View>
   );
-};
-
-export default PhoneVerification;
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 20,
-    backgroundColor: "#f9fafb",
-  },
-  card: {
-    backgroundColor: "white",
-    padding: 25,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#1e3a8a",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#4b5563",
-    textAlign: "center",
-    marginBottom: 20,
-    lineHeight: 20,
-  },
+  container: { flex: 1, justifyContent: "center", backgroundColor: "#F4F6F4", padding: 20 },
+  title: { fontSize: 22, fontWeight: "bold", color: "#2F6B3C", textAlign: "center" },
+  subtitle: { textAlign: "center", color: "#4b5563", marginVertical: 10 },
   input: {
     borderWidth: 1,
-    borderColor: "#d1d5db",
+    borderColor: "#C7D3CA",
     borderRadius: 8,
     padding: 12,
-    marginBottom: 12,
-    backgroundColor: "#f9fafb",
-    fontSize: 16,
-    color: "#111827",
+    backgroundColor: "#F9FBF9",
+    marginVertical: 12,
   },
-  primaryBtn: {
-    backgroundColor: "#2563eb",
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 5,
-  },
-  btnText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  skipBtn: {
-    marginTop: 15,
-    alignItems: "center",
-  },
-  skipText: {
-    color: "#2563eb",
-    fontSize: 15,
-    fontWeight: "500",
-  },
+  btn: { backgroundColor: "#E8B64D", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
+  btnText: { color: "#1B1B1B", fontWeight: "bold", fontSize: 16 },
+  resend: { color: "#2F6B3C", textAlign: "center", marginTop: 10 },
+  skip: { textAlign: "center", color: "#2F6B3C", marginTop: 15 },
 });

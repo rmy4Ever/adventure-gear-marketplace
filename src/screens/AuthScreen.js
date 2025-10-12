@@ -1,4 +1,3 @@
-// AuthScreen.js — handles both login + signup in one page
 import React, { useState } from "react";
 import {
   View,
@@ -17,84 +16,86 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
+import CountryPicker from "react-native-country-picker-modal";
 
-const AuthScreen = ({ navigation }) => {
-  // form inputs
+export default function AuthScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [country, setCountry] = useState("");
-
-  // toggle between signup + login mode
+  const [country, setCountry] = useState(null);
+  const [phone, setPhone] = useState("");
   const [isSignup, setIsSignup] = useState(false);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
 
-  // main auth handler (for both signup + login)
+  const validatePhone = (num) => /^\+[1-9]\d{6,14}$/.test(num);
+
   const handleAuth = async () => {
     try {
       let userCredential;
 
       if (isSignup) {
-        // 🔸 sign up a brand-new user
         if (!email || !password || !fullName || !country) {
-          Alert.alert("Missing info", "Please fill out all fields.");
+          Alert.alert("Missing info", "Please fill in all required fields.");
           return;
         }
 
+        if (phone && !validatePhone(phone)) {
+          Alert.alert(
+            "Invalid number",
+            "Please include country code (e.g. +6799912345)."
+          );
+          return;
+        }
+
+        // Create account in Firebase Auth
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-        // save the user data into Firestore
+        // Save user data to Firestore
         await setDoc(doc(db, "users", userCredential.user.uid), {
           fullName,
-          country,
+          country: country.name,
           email,
-          role: "user",
+          phone: phone || null,
           verified: false,
+          role: "user",
           visits: 1,
           createdAt: new Date(),
         });
 
-        Alert.alert("Success", "Account created successfully.");
+        Alert.alert("Success", "Account created successfully!");
 
-        // after signup → straight to dashboard
-        setTimeout(() => {
+        // Go to phone verification if user entered a valid number
+        if (phone) {
+          navigation.navigate("PhoneVerification", {
+            userId: userCredential.user.uid,  // send the ID to the next screen
+            phoneNumber: phone,               // match the expected param name
+          });
+        } else {
           navigation.reset({
             index: 0,
             routes: [{ name: "Dashboard" }],
           });
-        }, 500);
+        }
 
       } else {
-        // 🔹 user login
+        // --- LOGIN ---
         userCredential = await signInWithEmailAndPassword(auth, email, password);
         const userRef = doc(db, "users", userCredential.user.uid);
         const userSnap = await getDoc(userRef);
 
         if (!userSnap.exists()) {
-          Alert.alert("Error", "User record not found in database.");
+          Alert.alert("Error", "User not found in Firestore.");
           return;
         }
 
         const userData = userSnap.data();
-
-        // redirect admin vs normal user
-        if (userData.role === "admin") {
-          setTimeout(() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "AdminDashboard" }],
-            });
-          }, 500);
-        } else {
-          setTimeout(() => {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: "Dashboard" }],
-            });
-          }, 500);
-        }
+        navigation.reset({
+          index: 0,
+          routes: [{ name: userData.role === "admin" ? "AdminDashboard" : "Dashboard" }],
+        });
       }
-    } catch (error) {
-      Alert.alert("Error", error.message);
+    } catch (err) {
+      Alert.alert("Error", err.message);
     }
   };
 
@@ -103,42 +104,75 @@ const AuthScreen = ({ navigation }) => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.keyboardView}
     >
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* 🌿 App title + tagline */}
-        <Text style={styles.logo}>Adventure Gear Marketplace</Text>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.logo}>Gear Up</Text>
         <Text style={styles.subtitle}>
-          {isSignup ? "Create an account to get started" : "Welcome back, adventurer!"}
+          {isSignup
+            ? "Create an account to get started"
+            : "Welcome back, adventurer!"}
         </Text>
 
-        {/* 📦 Main form card */}
         <View style={styles.card}>
-          {/* only show these when signing up */}
           {isSignup && (
             <>
+              {/* Full Name */}
+              <Text style={styles.label}>Full Name</Text>
               <TextInput
-                placeholder="Full Name"
+                placeholder="Enter your full name"
                 value={fullName}
                 onChangeText={setFullName}
                 style={styles.input}
                 placeholderTextColor="#6b7280"
               />
+
+              {/* Country */}
+              <Text style={styles.label}>Country</Text>
+              <TouchableOpacity
+                style={[styles.input, styles.countryField]}
+                onPress={() => setShowCountryPicker(true)}
+              >
+                {country ? (
+                  <Text style={{ color: "#111" }}>
+                    {country.emoji ? `${country.emoji} ${country.name}` : country.name}
+                  </Text>
+                ) : (
+                  <Text style={{ color: "#6b7280" }}>Tap to choose your country</Text>
+                )}
+                <Text style={{ color: "#6b7280" }}>▼</Text>
+              </TouchableOpacity>
+
+              {showCountryPicker && (
+                <CountryPicker
+                  visible
+                  withFlag
+                  withFilter
+                  withCountryNameButton={false}
+                  containerButtonStyle={{ display: "none" }}
+                  onSelect={(c) => {
+                    setCountry(c);
+                    setShowCountryPicker(false);
+                  }}
+                  onClose={() => setShowCountryPicker(false)}
+                />
+              )}
+
+              {/* Phone */}
+              <Text style={styles.label}>Phone</Text>
               <TextInput
-                placeholder="Country"
-                value={country}
-                onChangeText={setCountry}
+                placeholder="Optional (e.g. +6799912345)"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
                 style={styles.input}
                 placeholderTextColor="#6b7280"
               />
             </>
           )}
 
-          {/* shared fields for both login + signup */}
+          {/* Email */}
+          <Text style={styles.label}>Email</Text>
           <TextInput
-            placeholder="Email"
+            placeholder="Enter your email"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -146,8 +180,10 @@ const AuthScreen = ({ navigation }) => {
             placeholderTextColor="#6b7280"
           />
 
+          {/* Password */}
+          <Text style={styles.label}>Password</Text>
           <TextInput
-            placeholder="Password"
+            placeholder="Enter your password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -155,12 +191,10 @@ const AuthScreen = ({ navigation }) => {
             placeholderTextColor="#6b7280"
           />
 
-          {/* 🔘 Main button */}
           <TouchableOpacity style={styles.primaryBtn} onPress={handleAuth}>
             <Text style={styles.btnText}>{isSignup ? "SIGN UP" : "LOGIN"}</Text>
           </TouchableOpacity>
 
-          {/* toggle text link */}
           <TouchableOpacity onPress={() => setIsSignup(!isSignup)}>
             <Text style={styles.switchText}>
               {isSignup
@@ -172,72 +206,59 @@ const AuthScreen = ({ navigation }) => {
       </ScrollView>
     </KeyboardAvoidingView>
   );
-};
-
-export default AuthScreen;
+}
 
 const styles = StyleSheet.create({
   keyboardView: { flex: 1, backgroundColor: "#F4F6F4" },
-  scrollView: { flex: 1 },
   scrollContent: { paddingVertical: 40, paddingHorizontal: 20 },
-
-  // main title
   logo: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#2F6B3C", // 🌿 matches dashboard green
-    marginBottom: 10,
+    color: "#2F6B3C",
     textAlign: "center",
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 15,
     color: "#4b5563",
-    marginBottom: 25,
     textAlign: "center",
+    marginBottom: 25,
   },
-
-  // white form card
   card: {
-    width: "100%",
     backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 6,
     borderLeftWidth: 5,
-    borderLeftColor: "#2F6B3C", // left accent bar for consistency
+    borderLeftColor: "#2F6B3C",
+    elevation: 6,
   },
-
-  // input boxes
+  label: {
+    fontSize: 15,
+    color: "#374151",
+    fontWeight: "600",
+    marginBottom: 6,
+    marginLeft: 2,
+  },
   input: {
     borderWidth: 1,
     borderColor: "#C7D3CA",
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    padding: 14,
+    marginBottom: 14,
     backgroundColor: "#F9FBF9",
-    fontSize: 16,
-    color: "#111827",
   },
-
-  // primary button
+  countryField: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   primaryBtn: {
-    backgroundColor: "#E8B64D", // 🟨 soft gold to match theme
+    backgroundColor: "#E8B64D",
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 8,
   },
-  btnText: {
-    color: "#1B1B1B",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-
-  // switch between login/signup
+  btnText: { color: "#1B1B1B", fontWeight: "bold", fontSize: 16 },
   switchText: {
     color: "#2F6B3C",
     textAlign: "center",

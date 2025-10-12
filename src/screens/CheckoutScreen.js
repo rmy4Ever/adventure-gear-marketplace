@@ -88,7 +88,7 @@ export default function CheckoutScreen({ route, navigation }) {
         </head>
         <body>
           <div class="header">
-            <div class="title">Adventure Gear Marketplace</div>
+            <div class="title">Gear Up</div>
             <div>Official Payment Receipt</div>
           </div>
 
@@ -264,13 +264,6 @@ export default function CheckoutScreen({ route, navigation }) {
           </Text>
         )}
 
-        {/* back button just returns to the CartScreen */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.navigate("CartScreen")}
-        >
-          <Text style={styles.backText}>Back to Cart</Text>
-        </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
   );

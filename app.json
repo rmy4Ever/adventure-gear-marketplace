@@ -35,7 +35,8 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "openWeatherApiKey": "3b2f8c2519e62a0fa3b82bd268e9e6c2"
+      "openWeatherApiKey": "3b2f8c2519e62a0fa3b82bd268e9e6c2",
+      "giphyApiKey": "h6H0ntfHMGjC9ET2cEi1PTJaE2CgwJ6P"
     },
     "plugins": [
       "expo-web-browser"

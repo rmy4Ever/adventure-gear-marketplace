@@ -156,7 +156,7 @@ export default function Dashboard({ navigation }) {
 
             {/* Map section */}
             <View style={styles.mapCard}>
-              <Text style={styles.mapTitle}>Adventure Stores in Fiji</Text>
+              <Text style={styles.mapTitle}>Share Your Spots</Text>
               <MapView
                 style={styles.map}
                 initialRegion={{

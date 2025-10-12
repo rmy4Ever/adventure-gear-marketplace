@@ -1,0 +1,139 @@
+# Adventure Gear Marketplace  
+**CS218 – Mobile Computing (Assignment 2)**  
+
+---
+
+## Group Members
+Tommy Simram -- S11231270
+Salote
+
+---
+
+## Project Overview
+The **Adventure Gear Marketplace** is a mobile e-commerce app where users can browse outdoor products, view live weather for adventure spots, make purchases via a simulated Stripe payment, and receive a downloadable PDF receipt.
+
+The app connects multiple APIs and tools to demonstrate the **networked and mobile computing** concepts required in **CS218 Assignment 2**:
+- **User Authentication (Firebase Auth + Firestore)**
+- **Simulated MFA (One-Time Password)**
+- **Product Dashboard (FlatList rendering)**
+- **Payment Simulation (Stripe API)**
+- **PDF Generation**
+- **Weather & Giphy Integration**
+- **Manual + Automated Testing**
+
+---
+
+## Main Features
+### Authentication
+- Firebase Authentication for secure login and signup.  
+- Firestore stores user data (name, email, country, phone, verified, role, etc.).  
+- Optional phone verification screen using mock OTP (enter `123456`).  
+- Admin login redirects to Admin Dashboard showing all registered users.
+
+### Dashboard & Products
+- Product list shown via `FlatList`.  
+- Each product displays image, name, and price.  
+- Product selection simulates an e-commerce flow (add to cart → checkout).
+
+### Stripe Payment (Simulated)
+- Fake checkout using **Stripe test mode**.  
+- Handles both **successful** and **failed** payment responses with alerts.
+
+### PDF Receipt Generation
+- After payment success, the app automatically generates a **PDF receipt** using `react-native-pdf-lib`.  
+- The PDF includes:
+  - Product summary  
+  - Total amount  
+  - Date and confirmation message  
+
+### API Integrations
+| API / Tool | Purpose |
+|-------------|----------|
+| **Firebase Auth + Firestore** | Handles user registration and stores data |
+| **Stripe (test mode)** | Simulates payment transactions |
+| **OpenWeatherMap API** | Displays weather info for adventure locations |
+| **Giphy API** | Fetches a relevant adventure GIF |
+| **react-native-pdf-lib** | Generates order confirmation PDF |
+| **Expo / React Native** | Frontend framework for building the mobile app |
+
+---
+
+## Screens and Components
+| File | Purpose |
+|------|----------|
+| `AuthScreen.js` | Signup/Login page with Firebase Auth & Country Picker |
+| `PhoneVerification.js` | OTP verification (mock) screen |
+| `DashboardScreen.js` | Displays products using FlatList |
+| `CheckoutScreen.js` | Simulates payment using Stripe API |
+| `AdminDashboard.js` | Displays list of users (for admin role) |
+| `firebase.js` | Firebase configuration file |
+| `App.js` | Navigation setup linking all screens |
+
+---
+
+## Functions & Logic Breakdown
+### AuthScreen.js
+- `createUserWithEmailAndPassword()` → Creates new Firebase account  
+- `signInWithEmailAndPassword()` → Authenticates existing users  
+- `setDoc()` → Saves user info in Firestore  
+- `validatePhone()` → Validates phone numbers using regex  
+- Navigates to `PhoneVerification` if a valid number is entered  
+
+### PhoneVerification.js
+- `sendVerification()` → Simulates sending OTP (mock test mode)  
+- `confirmCode()` → Checks code input (`123456`)  
+  - On success: updates Firestore user field `verified: true`  
+  - Redirects user to Dashboard
+
+### DashboardScreen.js
+- `useEffect()` → Loads and displays a list of mock products  
+- Renders product cards with names, images, and prices  
+- Uses `FlatList` for efficient rendering
+
+### CheckoutScreen.js
+- `handlePayment()` → Simulates payment flow  
+- Randomly decides success or failure  
+- Calls `generatePDF()` after success  
+
+### Firebase.js
+- Initializes Firebase Auth and Firestore  
+- Exports references used in all screens
+
+---
+
+## Installation Guide
+
+### Install Node.js and Expo CLI
+Make sure you have **Node.js (v18 or later)** installed.  
+Then install Expo globally:
+```bash
+npm install -g expo-cli
+npm install firebase
+npm install react-native-country-picker-modal
+npm install react-native-pdf-lib
+npm install expo-file-system
+npm install expo-sharing
+npm install @react-navigation/native @react-navigation/stack
+npm install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
+npm install stripe --save
+npm install @testing-library/react-native jest
+
+## References
+
+1. **Firebase Documentation.** (2024). *Firebase Authentication and Firestore.*  
+   Retrieved from [https://firebase.google.com/docs](https://firebase.google.com/docs)
+
+2. **Stripe API Documentation.** (2024). *Payment Intents and Test Mode.*  
+   Retrieved from [https://stripe.com/docs/api](https://stripe.com/docs/api)
+
+3. **OpenWeatherMap API.** (2024). *Weather Data and Forecast API.*  
+   Retrieved from [https://openweathermap.org/api](https://openweathermap.org/api)
+
+4. **Giphy Developers.** (2024). *Giphy REST API Documentation.*  
+   Retrieved from [https://developers.giphy.com/](https://developers.giphy.com/)
+
+5. **Expo Documentation.** (2024). *Using Expo CLI and React Native Components.*  
+   Retrieved from [https://docs.expo.dev/](https://docs.expo.dev/)
+
+6. **React Native PDF-Lib.**
+

@@ -27,7 +27,7 @@ export default function App() {
         <Stack.Navigator
           initialRouteName="Landing"
           screenOptions={{
-            headerStyle: { backgroundColor: "#1e3a8a" },
+            headerStyle: { backgroundColor: "#2F6B3C" },
             headerTintColor: "#fff",
             headerTitleAlign: "center",
             headerBackTitleVisible: false,
@@ -42,7 +42,7 @@ export default function App() {
           <Stack.Screen name="CartScreen" component={CartScreen} options={{ title: "Your Cart" }} />
           <Stack.Screen name="ProductDetails" component={ProductDetails} options={{ title: "Product Details" }} />
           <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} options={{ title: "Checkout" }} />
-          <Stack.Screen name="AdminDashboard" component={AdminDashboard} options={{ title: "Admin Dashboard" }} />
+          <Stack.Screen name="AdminDashboard" component={AdminDashboard} options={{ title: "Admin" }} />
         </Stack.Navigator>
       </NavigationContainer>
     </StripeProvider>

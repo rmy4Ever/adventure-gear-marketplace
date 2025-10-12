@@ -13,7 +13,7 @@ export default function Landing({ navigation }) {
     >
       {/* dark overlay so text pops against background */}
       <View style={styles.overlay}>
-        <Text style={styles.title}>Adventure Gear Marketplace</Text>
+        <Text style={styles.title}>Gear Up</Text>
         <Text style={styles.subtitle}>
           Explore the best adventure gear and discover what’s out there — no login required.
         </Text>
